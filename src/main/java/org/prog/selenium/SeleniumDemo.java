@@ -46,7 +46,7 @@ public class SeleniumDemo {
         if (count > 3) {
             System.out.println(celebrityName + " found!");
         } else {
-            System.out.println(celebrityName + " not found!");
+            throw new RuntimeException(celebrityName + " not found!");
         }
     }
 
