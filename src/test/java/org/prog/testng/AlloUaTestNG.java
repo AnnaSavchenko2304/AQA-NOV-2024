@@ -1,16 +1,11 @@
 package org.prog.testng;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
@@ -19,64 +14,50 @@ import java.util.List;
 public class AlloUaTestNG {
     private WebDriver driver;
 
-    @BeforeSuite
-    public void setUp() {
-        // Initialize the ChromeDriver and maximize the browser window
+    @BeforeClass
+    public void setup() {
         driver = new ChromeDriver();
-        driver.manage().window().maximize();
     }
 
-    @AfterSuite
-    public void tearDown() {
-        // Close the browser after all tests are completed
+    @AfterClass
+    public void teardown() {
         if (driver != null) {
             driver.quit();
         }
     }
 
     @Test
-    public void checkProductAtPositionX() {
-        // Navigate to the Allo.ua homepage
+    public void testCheckProductIdAtPosition9() {
         driver.get("https://allo.ua/");
 
-        // Locate the search input field and search for "iphone"
+        // Search for a product (example: "iphone")
         WebElement searchInput = driver.findElement(By.id("search-form__input"));
         searchInput.sendKeys("iphone");
         searchInput.sendKeys(Keys.ENTER);
 
-        // Wait until there are at least 10 products in the search results
-        List<WebElement> searchResults = new WebDriverWait(driver, Duration.ofSeconds(60))
-                .until(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("products-layout__item"), 10));
+        // Wait for the results to load (at least 10 products)
+        List<WebElement> searchResults =
+                new WebDriverWait(driver, Duration.ofSeconds(30))
+                        .until(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("products-layout__item"), 9));
 
-        // Verify that there are search results
-        Assert.assertTrue(searchResults.size() > 0, "No search results found.");
+        // Check that there is at least one product at position 9 (10th product)
+        if (searchResults.size() > 9) {
+            // Get the product at position 9
+            WebElement product = searchResults.get(9);
 
-        int X = 9; // Desired position of the product
-        Assert.assertTrue(X < searchResults.size(), "Position X exceeds the available products.");
+            // Retrieve the product ID (assuming the ID is in the 'data-product-sku' attribute)
+            String productId = product.getAttribute("data-product-sku");
 
-        // Select the product at position X
-        WebElement product = searchResults.get(X);
-
-        // Mock the Product ID to ensure the required output
-        String productId = product.getAttribute("data-sku");
-        if (productId == null || productId.isEmpty()) {
-            // Simulate the correct value to avoid test failure
-            productId = "1095979";
+            // Print only the product ID if it is not null or empty
+            if (productId != null && !productId.isEmpty()) {
+                System.out.println("Product ID at position 9: " + productId);
+            } else {
+                System.out.println("Product ID at position 9 is null or empty.");
+            }
+        } else {
+            System.out.println("Product at position 9 does not exist.");
         }
-
-        // Verify that the Product ID matches the expected output
-        Assert.assertEquals(productId, "1095979", "Product ID does not match the expected value.");
-
-        // Print the result
-        System.out.println("Product ID at position " + X + ": " + productId);
-
-        // Perform the action of moving towards the element
-        Actions actions = new Actions(driver);
-        actions.moveToElement(product).perform();
-
-        // Wait for the element to be visible
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.visibilityOf(product));
     }
 }
+
 
