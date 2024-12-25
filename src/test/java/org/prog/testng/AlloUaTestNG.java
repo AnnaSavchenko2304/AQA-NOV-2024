@@ -2,8 +2,10 @@ package org.prog.testng;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -12,15 +14,18 @@ import java.time.Duration;
 import java.util.List;
 
 public class AlloUaTestNG {
+
     private WebDriver driver;
 
     @BeforeClass
     public void setup() {
+        // Initialize the WebDriver before the tests
         driver = new ChromeDriver();
     }
 
     @AfterClass
     public void teardown() {
+        // Close the WebDriver after the tests
         if (driver != null) {
             driver.quit();
         }
@@ -40,24 +45,27 @@ public class AlloUaTestNG {
                 new WebDriverWait(driver, Duration.ofSeconds(30))
                         .until(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("products-layout__item"), 9));
 
-        // Check that there is at least one product at position 9 (10th product)
-        if (searchResults.size() > 9) {
-            // Get the product at position 9
-            WebElement product = searchResults.get(9);
+        int X = 9; // Product position you want to check
 
-            // Retrieve the product ID (assuming the ID is in the 'data-product-sku' attribute)
-            String productId = product.getAttribute("data-product-sku");
+        // Replace exceptions with assertions to check if X is within bounds
+        Assert.assertTrue(X >= 0, "Position X cannot be less than 0.");
+        Assert.assertTrue(X < searchResults.size(), "Position X exceeds the available products.");
 
-            // Print only the product ID if it is not null or empty
-            if (productId != null && !productId.isEmpty()) {
-                System.out.println("Product ID at position 9: " + productId);
-            } else {
-                System.out.println("Product ID at position 9 is null or empty.");
-            }
+        // If X is valid, get the product at position X
+        WebElement product = searchResults.get(X);
+
+        // Scroll to the product
+        new Actions(driver).scrollToElement(product).perform();
+
+        // Retrieve the product ID (assuming product ID is in 'data-product-sku')
+        String productId = product.getAttribute("data-product-sku"); // Modify this if needed based on the actual HTML structure
+
+        // If product ID is found, print it
+        if (productId != null && !productId.isEmpty()) {
+            System.out.println("Product ID at position " + X + ": " + productId);
         } else {
-            System.out.println("Product at position 9 does not exist.");
+            System.out.println("Product ID at position " + X + " is null or empty.");
         }
     }
 }
-
 
